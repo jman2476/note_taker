@@ -29,12 +29,12 @@ app.get('/api/notes', (requestObj, responseObj) => {
 
 
 // TODO:: POST /api/notes should receive new note from the request body, add it to db.json, then return the new note to the client. Give each note a unique ID
-app.get('/api/notes', (requestObj, responseObj) => {
+app.post('/api/notes', (requestObj, responseObj) => {
     
 })
 
 // TODO:: DELETE /api/notes/:id should receive a query parameter that contains the id of a note to delete. To delete a note, read all notes from the db.json file, remove the note with the given id property, and then rewrite the notes to the db.json file.
-app.get('/api/notes', (requestObj, responseObj) => {
+app.delete('/api/notes/:id', (requestObj, responseObj) => {
     
 })
 
