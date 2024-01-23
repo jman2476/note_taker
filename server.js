@@ -11,20 +11,32 @@ app.use(express.static('./public'))
 
 app.use(express.json())
 
+// function to get the notes
+async function getNotes() {
+    const notesArr = await fs.promises.readFile('./db/db.json', 'utf8')
+
+    // returns the notes array
+    return notesArr
+}
+
+// function to save the notes to json
+async function saveNotes(userArr) {
+
+}
+
+
 // TODO:: GET /notes should return the notes.html file
 app.get('/notes', (requestObj, responseObj) => {
     responseObj.sendFile(path.join(__dirname,'./public/notes.html'))
 })
 
-// TODO:: GET * should return the index.html file
-app.get('*', (requestObj, responseObj) => {
-    responseObj.sendFile(path.join(__dirname, './public/index.html'))
-})
 
 
 // TODO:: GET /api/notes should read the db.json file and return the saved notes AS JSON
-app.get('/api/notes', (requestObj, responseObj) => {
-    
+app.get('/api/notes', async (requestObj, responseObj) => {
+    const notesArr = await getNotes() //get the  current notes
+    console.log(notesArr)
+    responseObj.send(notesArr)
 })
 
 
@@ -38,6 +50,10 @@ app.delete('/api/notes/:id', (requestObj, responseObj) => {
     
 })
 
+// TODO:: GET * should return the index.html file
+app.get('*', (requestObj, responseObj) => {
+    responseObj.sendFile(path.join(__dirname, './public/index.html'))
+})
 
 
 // listen on the port for the sounds of the universe
