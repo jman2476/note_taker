@@ -20,6 +20,7 @@ async function getNotes() {
 }
 
 // function to save the notes to json
+
 async function saveNotes(notesArr) {
     // write the notes to the database json file
     fs.promises.writeFile('./db/db.json', JSON.stringify(notesArr, null, 2), 'utf-8')
@@ -30,7 +31,6 @@ async function saveNotes(notesArr) {
 app.get('/notes', (requestObj, responseObj) => {
     responseObj.sendFile(path.join(__dirname, './public/notes.html'))
 })
-
 
 
 //GET /api/notes reads the db.json file and returns the saved notes AS JSON
