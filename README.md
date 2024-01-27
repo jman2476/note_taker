@@ -6,7 +6,8 @@
 
 Visit https://note-taker-3000.onrender.com to take and delete some notes!
   
-  
+  ![Screenshot of the Note Taker application](./assets/screenshot.png)
+
   ## Table of Contents
   
   - [License](#license)
