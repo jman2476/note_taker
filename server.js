@@ -1,53 +1,83 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
-const { v4 } = require('uuid') 
+const { v4 } = require('uuid')
 
 const PORT = 3330 // server will run on port 3330
 
 const app = express() // sets name to app
-
+// set the home to public
 app.use(express.static('./public'))
-
+// allow the app to get and use json
 app.use(express.json())
 
 // function to get the notes
 async function getNotes() {
-    const notesArr = await fs.promises.readFile('./db/db.json', 'utf8')
+    const notesArr = await fs.promises.readFile('./db/db.json', 'utf8') || "[]"
 
     // returns the notes array
     return notesArr
 }
 
 // function to save the notes to json
-async function saveNotes(userArr) {
 
+async function saveNotes(notesArr) {
+    // write the notes to the database json file
+    fs.promises.writeFile('./db/db.json', JSON.stringify(notesArr, null, 2), 'utf-8')
 }
 
 
-// TODO:: GET /notes should return the notes.html file
+// GET /notes returns the notes.html file
 app.get('/notes', (requestObj, responseObj) => {
-    responseObj.sendFile(path.join(__dirname,'./public/notes.html'))
+    responseObj.sendFile(path.join(__dirname, './public/notes.html'))
 })
 
 
-
-// TODO:: GET /api/notes should read the db.json file and return the saved notes AS JSON
+//GET /api/notes reads the db.json file and returns the saved notes AS JSON
 app.get('/api/notes', async (requestObj, responseObj) => {
-    const notesArr = await getNotes() //get the  current notes
-    console.log(notesArr)
+    //get the  current notes
+    const notesArr = await getNotes()
+
+    // return notes array
     responseObj.send(notesArr)
 })
 
 
-// TODO:: POST /api/notes should receive new note from the request body, add it to db.json, then return the new note to the client. Give each note a unique ID
-app.post('/api/notes', (requestObj, responseObj) => {
-    
+// POST /api/notes receives new note from the request body, adds it to db.json, then returns the new note to the client. Gives each note a unique ID
+app.post('/api/notes', async (requestObj, responseObj) => {
+    // select the new note out of the request object
+    const newNote = requestObj.body
+    // get current notes
+    const notesArr = JSON.parse(await getNotes())
+
+    // add an id to the note
+    newNote.id = v4()
+    // append notes array with new note
+    notesArr.push(newNote)
+
+    // save the notes array
+    await saveNotes(notesArr)
+
+    // return new note
+    responseObj.send(newNote)
 })
 
-// TODO:: DELETE /api/notes/:id should receive a query parameter that contains the id of a note to delete. To delete a note, read all notes from the db.json file, remove the note with the given id property, and then rewrite the notes to the db.json file.
-app.delete('/api/notes/:id', (requestObj, responseObj) => {
-    
+// DELETE /api/notes/:id finds a note with the given id, removes it from the notes array, and then saves the new notes array
+app.delete('/api/notes/:id', async (requestObj, responseObj) => {
+    // get current notes
+    const notesArr = JSON.parse(await getNotes())
+    // save id from request object
+    const noteID = requestObj.params.id
+    // find the note that matches the parameter id
+    // and filter it out
+    const newNotesArr = notesArr.filter((noteEl) => noteEl.id !== noteID)
+
+    // save the new notes array
+    await saveNotes(newNotesArr)
+
+    responseObj.send({
+        message: "Note deleted successfully"
+    })
 })
 
 // TODO:: GET * should return the index.html file
@@ -57,6 +87,6 @@ app.get('*', (requestObj, responseObj) => {
 
 
 // listen on the port for the sounds of the universe
-app.listen(PORT, () =>{
+app.listen(PORT, () => {
     console.log(`Server started on port ${PORT}`)
 })
